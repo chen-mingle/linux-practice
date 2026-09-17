@@ -241,3 +241,19 @@ ps -ef | grep tail，过滤tail关键字的进程
 · -d，指定要解压去的位置，同tar的-C选项
 · 参数，被解压的zip压缩包文件
 
+- echo $HISTSIZE
+3000
+
+- echo $HISTFILE
+/root/.bash_history  ##存放用户执行的历史命令，写入文件
+
+- history [-c -r]
+· -c,清空历史
+· -r,恢复历史
+
+- !历史id
+快速执行历史命令
+
+- !!
+执行上次的命令
+

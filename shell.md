@@ -11,10 +11,72 @@ Shell相关命令
 · 创建.sh文件     touch/vim
 · 编写shell代码
 · 执行shell脚本   脚本必须要有执行权限
-使用./文件名.sh或者/bin/bash 文件名.sh来执行
+
+##执行脚本
+· 使用./文件名.sh或者绝对路径 文件名.sh，需要脚本有执行权限，一般是系统脚本
+· /bin/bash 文件名.sh
+· sh 文件名.sh
+· source 文件名.sh和. 文件名.sh，让环境变量生效；类似于include功能，把放在其他位置的配置文件包含进主配置文件中
 
 #一、变量
 先定义后使用
+不能以数字开头
+
+##环境变量
+- env
+
+- declare
+
+- export 环境变量名
+环境变量（名）可自定义
+
+- unset 环境变量名
+取消环境变量
+
+如果要永久修改环境变量，要在/etc/profile/中修改
+
+LANG：记录系统字符集语言
+PS1：命令行格式
+PATH：命令路径
+UID：记录用户的UID信息
+HOSTNAME：主机名
+HISTSIZE：history命令记录的条数（最多），history -c/-w/-a/-d
+HISTFILESIZE：history文件记录的最多条数，默认在~/.bash_history
+HISTFILE：指定历史文件记录的位置
+TMOUT：不进行操作自动断开的时间，export TMOUT=num
+HISTCONTROL：控制history命令是否记录以空格开头的命令，export HISTCONTROL=ignorespace以空格开头的命令不会被记录到history
+PROMPT_COMMAND：存放的命令/脚本会在下一个命令执行前运行
+
+相关文件目录
+· /etc/profile：存放环境变量，别名
+· /etc/bashrc：别名
+· ~/.bashrc：当前用户的别名
+· ~/,bash_profile：当前用户的环境变量
+· /etc/profile.d/xxxx.sh：用户登录系统后，执行这个目录下以.sh结尾的脚本
+
+##特殊变量
+###位置
+- $0
+脚本的名字
+一般在脚本执行出错时，显示错误提示
+
+- $n
+n是数字，脚本的第几个参数
+
+- #
+脚本参数的个数一共有多少个参数
+
+- $*
+取出所有的参数，加上双引号，是一个整体，一个参数
+
+- $@
+取出所有的参数，加上双引号，每个都是独立的
+
+
+
+##普通变量
+week=3
+今天是第${week}day
 
 - class_name="yunwei"
 定义变量class_name,值为yunwei
@@ -42,6 +104,10 @@ Shell相关命令
 
 - unset 变量名
 删除变量
+
+- ./test.sh a b c
+传递选项
+使用$1 $2 $3来接收
 
 #二、条件判断语句
 
