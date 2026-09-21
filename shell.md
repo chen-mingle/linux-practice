@@ -172,6 +172,7 @@ week=3
 传递选项
 使用$1 $2 $3来接收
 
+
 #二、运算
 ##运算符号
 · + - * / %
@@ -194,78 +195,11 @@ week=3
 
 - echo 9/6 |bc -l
 基础运算，可计算小数
-· echo "obase=进制;数字"，用来将十进制数转换为对应进制
+· echo "obase=进制;数字"|bc -l，用来将十进制数转换为对应进制
 
 - awk -vn1=1 -vn2=3 'BEGIN{print n1/n2}'
 · -v，修改awk的变量，和后面变量可不加空格
 
-#三、条件测试语句
-- test 条件
-- [条件]
-- [[条件]]
-- ((条件))
-[ -f /etc/hostname ]
-
-##文件
-- -d
-目录是否存在
-
-- -f
-文件是否存在
-
-- -e
-是否存在
-
-- -r/w/x
-是否可读/可写/可执行
-
-- -s
-文件是否为空，大小是否为0
-
-##字符串
-加上双引号
-- -n
-如果变量或字符串不是空则成立
-
-- -z
-如果变量或字符串是空则成立
-
-- "str1" = "str2"
-判断两个字符串/变量内容是否一致，如果相等则成立
-
-- "str1" != "str2"
-判断两个字符串/变量内容是否一致，如果不相等则成立
-
-#四、条件判断语句
-
-- if condition
-  then
-    command1
-    command2
-    ...
-  fi
-
-- if [ condition ]; then command; fi
-一般在命令行中执行时使用
-
-- if condition
-  then
-    command1
-    command2
-    ...
-  else
-    command
-  fi
-
-- if condition1
-  then
-    command1
-  elif condition2
-  then
-    command2
-  else
-    commandN
-  fi
 
 #三、运算符
 ##算术运算符
@@ -385,4 +319,109 @@ a为"abc"，b为"efg"
 - -e file
 检测文件或目录是否存在，如果是，返回true
 [ -e $file ]true
+
+
+#四、条件判断语句
+- test 条件
+- [条件]
+- [[条件]]
+- ((条件))
+[ -f /etc/hostname ]
+
+##文件
+- -d
+目录是否存在
+
+- -f
+文件是否存在
+
+- -e
+是否存在
+
+- -r/w/x
+是否可读/可写/可执行
+
+- -s
+文件是否为空，大小是否为0
+
+##字符串
+加上双引号
+- -n
+如果变量或字符串不是空则成立
+
+- -z
+如果变量或字符串是空则成立
+
+- "str1" = "str2"
+判断两个字符串/变量内容是否一致，如果相等则成立
+
+- "str1" != "str2"
+判断两个字符串/变量内容是否一致，如果不相等则成立
+
+##if语句
+- if condition;then
+    command1
+    command2
+    ...
+  fi
+
+- if [ condition ]; then command; fi
+一般在命令行中执行时使用
+
+- if condition
+  then
+    command1
+    command2
+    ...
+  else
+    command
+  fi
+
+- if condition1
+  then
+    command1
+  elif condition2
+  then
+    command2
+  else
+    commandN
+  fi
+
+##case语句
+case $变量 in
+"值1")
+    如果变量的值等于值1,则执行程序1
+;;
+"值2")
+    如果变量的值等于值2,则执行程序2
+;;
+    ...
+*)
+    如果变量的值都不是以上的值，则执行此程序
+;;
+esac
+
+
+#五、循环
+##for循环
+
+
+
+
+
+
+
+
+#六、脚本常用监控命令
+
+
+
+
+#七、服务管理脚本
+
+
+
+#八、函数
+
+
 
