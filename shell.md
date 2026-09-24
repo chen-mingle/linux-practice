@@ -229,7 +229,7 @@ a=10，b=20
 ### !=
 不相等，```[ $a != $b ]```返回ture
 
-## 3.2 关系运算符
+## 关系运算符
 a=10，b=20
 ### -eq
 检测两个数是否相等，相等返回true
@@ -255,7 +255,7 @@ a=10，b=20
 检测左边的数是否小于等于右边，如果是，返回true
 ```[ $a -le $b ]``` ```ture```
 
-## 3.3 逻辑运算符
+## 逻辑运算符
 a=10，b=20
 ### !
 非运算，表达式为true则返回false，否则返回true
@@ -269,7 +269,7 @@ a=10，b=20
 与运算，两个表达式都为true才返回true
 ```[ $a -lt 20 -a $b -gt 100 ]``` ```false```
 
-## 3.4 字符串运算符
+## 字符串运算符
 a为"abc"，b为"efg"
 ### =
 检测两个字符串是否相等，相等返回true
@@ -291,7 +291,7 @@ a为"abc"，b为"efg"
 检测字符串是否为空，不为空返回true
 ```[ $a ]``` ```true```
 
-## 3.5 文件测试运算符
+## 文件测试运算符
 用于检测Unix/Linux文件的各种属性
 ### -d file
 检测文件是否是目录，如果是，返回true
@@ -322,14 +322,14 @@ a为"abc"，b为"efg"
 ```[ -e $file ]``` ```true```
 
 
-# 四、条件测试语句
+# 条件测试语句
 - test 条件
 - \[条件]
 - \[\[条件]]
 - ((条件))
 - \[ -f /etc/hostname ]
 
-## 4.1 文件
+## 文件
 ### -d
 目录是否存在
 
@@ -345,7 +345,7 @@ a为"abc"，b为"efg"
 ### -s
 文件是否为空，大小是否为0
 
-## 4.2 字符串
+## 字符串
 加上双引号
 ### -n
 如果变量或字符串不是空则成立
@@ -360,9 +360,9 @@ a为"abc"，b为"efg"
 判断两个字符串/变量内容是否一致，如果不相等则成立
 
 
-# 五、条件判断语句
-## 5.1 if语句
-```
+# 条件判断语句
+## if语句
+```bash
 if condition;then
     command1
     command2
@@ -370,10 +370,12 @@ if condition;then
 fi
 ```
 
-- ```if \[ condition ]; then command```; fi
+```bash
+if \[ condition ]; then command; fi
+```
 一般在命令行中执行时使用
 
-```
+```bash
 if condition
   then
     command1
@@ -383,7 +385,7 @@ if condition
     command
 fi
 ```
-```
+```bash
 if condition1
   then
     command1
@@ -397,8 +399,8 @@ if condition1
 fi
 ```
 
-## 5.2 case语句
-```
+## case语句
+```bash
 case $变量 in
 "值1")
     如果变量的值等于值1,则执行程序1
@@ -413,17 +415,17 @@ case $变量 in
 esac
 ```
 
-# 六、循环
+# 循环
 ## 6.1 for循环
 
-```
+```bash
 for (( 初始值;循环控制条件;变量变化 ))
 do
 	程序
 done
 ```
 
-```
+```bash
 for 变量 in 值1 值2 值3 ... 
 do
       程序
@@ -431,19 +433,359 @@ done
 ```
 
 ## while循环
-```
+```bash
 while [ 条件判断式 ]
   do
       程序
 done
 ```
 
-# 七、函数
+# 函数
 ## 系统函数
+### basename
 ```basename [ string/pathname ] [ suffix ]```
+
 删掉所有的前缀包括最后一个（'/'）字符，然后将字符串显示出来
+```bash
+wasd@Dell:~$ basename /home/wasd/Documents/linux-practice/shell-test/test2.sh
+test2.sh
+wasd@Dell:~$ basename /home/wasd/Documents/linux-practice/shell-test/test2.sh .sh
+test2
+```
+
+### dirname
+```dirname 文件绝对路径```
+
+在给定的包含绝对路径的文件名中去除文件名（非目录的部分），返回剩下的路径
+```bash
+wasd@Dell:~$ dirname /home/wasd/Documents/linux-practice/shell-test/test2.sh
+/home/wasd/Documents/linux-practice/shell-test
+```
+
+## 自定义函数
+```bash
+[ function ] funname[()]  # 声明函数
+{
+  Action;
+  [return int;]
+}                         # []包裹的内容可省略
+```
+
+# 正则
+regular expression (RE)
+
+支持：三剑客，find，rename（Ubuntu），expr
+## 注意事项
+- 所有符号都是英文符号
+- grep加上单引号
+- 注意系统的字符集:en_US.UTF-8，如果出现问题修改字符集为1C```export LANG=C```
+- 配合grep -o
+
+## 符号
+|   分类   |       |       |       |       |       |       |       |        |       命令       |
+| :------: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :----: | :--------------: |
+| 基础正则 |   ^   |   $   |  ^$   |   .   |   *   |  .*   | [a-z] | [^abc] |   grep/sed/awk   |
+| 扩展正则 |   +   |  \|   |  ()   |  {}   |   ?   |       |       |        | egrep/sed -r/awk |
+
+## 基础正则
+### ^
+- ^oldboy，筛选以oldboy开头的行
+```bash:
+wasd@Dell:~$ grep '^a' test.txt 
+a 
+ask 
+and 
+and 
+and 
+anxious 
+and 
+afternoons . 
+are 
+address 
+and 
+```
+
+### $
+- '$olgboy，筛选以oldboy结尾
+```bash
+wasd@Dell:~$ grep 'e $' test.txt 
+Chinese 
+course 
+came 
+here 
+have 
+some 
+have 
+use 
+the 
+the 
+have 
+Please 
+me 
+phone 
+Here 
+are 
+phone 
+```
+- cat -A，显示所有隐藏的符号
+
+### ^$
+- '^$'，筛选空行（空格也是符号）
+- -n，显示行数
+- -v，排除空行
+```bash
+wasd@Dell:~$ grep ' ' test.txt 
+hua@1236.com ; 1234567.
+Look forward to your reply .
+Yours ,
+Li Hua
+```
+```bash
+wasd@Dell:~$ grep -n '^$' test.txt 
+2:
+100:
+102:
+104:
+```
+### .
+- grep '.' test.txt
+- 匹配任意字符
+- 不匹配空行
+```bash
+wasd@Dell:~$ grep '.' test.txt 
+Dear Sir ,
+I’m LiHua , 
+university . 
+help . 
+interesting .
+library . 
+you. 
+I  have no class on Tuesdays mornings and Friday afternoons . Please let me 
+know which day is ok with you. 
+number :
+lihua@1236.com ; 1234567.
+Look forward to your reply .
+Yours ,
+Li Hua
+```
+
+### \
+- 转义字符
+- \n，回车
+- \t，tab
+
+### *
+- grep 't*' test.txt
+- 前一个字符重复出现了0次或0次以上
+- 0，出现一次
+- 000，出现三次
+- oldboy，小写字母连续出现六次
+
+### .*
+- 筛选所有内容
+- grep '^.*t' test.txt，匹配所有从开头开始以t结尾的内容（一行中最后的t）
+
+### [] [abc]
+- 一次匹配一个字符，匹配任何一个字符（a或b或c）
+- grep '[abc]' test.txt
+- grep -o '[abc]' test.txt，显示grep的匹配过程
+- grep -i '[a-z0-9]' test.txt，匹配字母和数字，-i不区分大小写
+- [a-z]，匹配所有小写字母
+- [A-Z]，匹配所有大写字母
+- [a-Z]，匹配所有字母
+- [0-9]，匹配所有数字
+- [a-zA-Z0-9]，匹配所有字母和数字
+- []，里面的内容一般都会去掉特殊含义
+
+## 扩展正则
+### +
+- 前一个字符连续出现了一次或一次以上
+- ```egrep '0+' test.txt```
+- ```grep -E '0+' test.txt```
+- ```egrep '[0-9]+' test.txt```匹配文件中连续的数字
+
+### |
+- 或者
+- ```egrep 'oldboy|oldbey' test.txt```匹配文件中的oldboy或者oldbey
+
+
+### ()
+- 被括起来的内容，表示一个整体（一个字符）
+- 后向应用（反向引用sed）
+- egrep 'oldb(o|e)y' test.txt
+- egrep 'oldb[oe]y' test.txt
+
+### {}
+- ```o{n,m}```字母o，至少连续出现了n次，至多连续出现了m次
+- ```o{n}```字母o正好连续出现了n次
+- o{n,}，字母o，至少连续出现了n次
+- o{,m}，字母o，至多连续出现了m次
+- ```egrep '[0-9]{18}' test.txt```筛选18位数字的行
+
+### ?
+- 连续出现，前一个字符出现零次或一次
+- ```egrep 'go?d' test.txt```
+
+# 三剑客
+grep,sed,awk
+
+| 命令 | 特点                   | 场景                                  |
+| :--- | :--------------------- | :------------------------------------ |
+| grep | 过滤                   | 过滤速度最快                          |
+| sed  | 替换，修改文件内容取行 | 替换/修改文件内容，取出某个范围的内容 |
+| awk  | 取列，统计计算         | 取列,对比,比较,统计,计算              |
+
+## grep
+| 选项 | 含义                                              |
+| ---- | ------------------------------------------------- |
+| -E   | 相当于egrep，支持扩展正则                         |
+| -A   | 了解，after -A5匹配你要的内容并且显示接下来的5行  |
+| -B   | 了解，before -B5匹配你要的内容并且显示接上面的5行 |
+| -C   | 了解，context -C5匹配你要的内容并且显示上下的5行  |
+| -c   | 统计出现了多少行，类似于wc -l                     |
+| -v   | 取反，排除（行）                                  |
+| -n   | 显示行号                                          |
+| -i   | 忽略大小写                                        |
+| -w   | 精确匹配                                          |
+
+
+### 注意
+- ```ps -ef |grep crond|grep -v grep```在过滤时排除自己
+- ```ps -ef|grep '[c]rond'```在过滤时排除自己
+- \b，表示边界```grep \bolgboy\b```和-w作用一致
+- \\< \\>，```grep \<olgboy\>```同上
+
+## sed
+sed stream editor流编辑器
+
+### 格式
+```sed -r 's#oldboy#oldgirl#g' oldboy.txt```
+- sed，命令
+- -r，选项，启用正则表达式，**-E**同作用
+- s，替换，命令功能
+- g，修饰符，可选
+- oldboy，参数（文件）
+
+### 命令功能
+**增删改查**
+| 字母 | **s** | **p** |     d      | c/a/i |
+| ---- | :---: | :---: | :--------: | :---: |
+| 功能 | 替换  | 显示  | 删除（行） | 增加  |
+ 
+
+
+### 执行过程
+找谁干啥
+- 找谁：找哪一行
+- 干啥：增删改查
+
+![sed](image.png)
+
+| 查找格式           |                                       |
+| ------------------ | ------------------------------------- |
+| '2p'               | 指定行号查找                          |
+| '1,5p'             | 指定行号范围查找                      |
+| '/lidao/p'         | 类似grep过滤，//里面可以写正则        |
+| '/10:00/,/11:00/p' | 表示范围的过滤                        |
+| '1,/oldboy/p'      | 表示从第1行到包含oldboy的行的所有内容 |
+
+- 实际生产环境日志，不要使用cat/vim打开，应使用```head/tail/less/more/sed/grep/awk```
+
+### p-显示
+```sh
+wasd@Dell:~$ sed -n '3p' test.txt  # 显示第3行
+I’m LiHua , 
+
+wasd@Dell:~$ sed -n '1,5p' test.txt  # 显示从第1到第5行
+Dear Sir ,
+
+I’m LiHua , 
+a 
+Chinese 
+
+sed -n '4,$p' test.txt             # 筛选从第4行到最后一行
+
+wasd@Dell:~$ sed -n '$p' test.txt  # $p表示最后一行
+Li Hua
+
+wasd@Dell:~$ sed -n '/Li/p' test.txt  # 显示包含Li的行
+I’m LiHua , 
+Li Hua
+
+sed -nr '/[0-9]+/p' test.txt  # 支持扩展正则
+
+sed -n '/10:00/,/11:00/p' test.txt   # 显示从包含10:00行到11:00行的所有内容
+
+sed -n '/10:00/,/11:000/p' test.txt  # 如果后半部分不存在，则会显示从10:00行到最后一行的所有内容
+```
+
+### d-删除
+```sh
+sed -n '3d' test.txt    # 删除第3行
+
+sed -n '2,3d' test.txt  # 删除从第2行到第3行的内容
+
+sed -n '/lidao/d'       # 删除包含lidao的行
+```
+
+- 案例：删除文件的空行和注释行
+```sh
+egrep -v '^$|#' /etc/ssh/sshd_config
+
+sed -r '/^$|#/d' /etc/ssh/sshd_config
+
+# !的妙用（非，取反）
+sed -nr '/^$|#/!p' /etc/ssh/sshd_config  # 不显示空行或注释行
+```
+
+### c/i/a-增加
+| 命令  |  作用   |               位置               |
+| :---: | :-----: | :------------------------------: |
+|   c   | replace |          替代这行的内容          |
+| **a** | append  | 追加，向指定的行或每一行追加内容 |
+|   i   | insert  | 插入，向指定的行或每一行插入内容 |
+
+```sh
+sed '3a 996,lidao,UFO'  # 在第3行的下一行增加内容
+
+sed '3i 996,lidao,UFO'  # 在第3行的上一行增加内容
+
+sed '3c 996,lidao,UFO'  # 把第3行的内容替换为相应的内容
+```
+
+- 案例：向文件中追加多行内容
+```sh
+# 向config中追加
+UseDNS no
+GSSAPIAUTON no
+PermitRootLogin no
+
+# 方法1：
+cat >>config<<'EOF'
+UseDNS no
+GSSAPIAUTON no
+PermitRootLogin no
+EOF
+
+# 方法2：
+sed '$a UseDNS no\GSSAPIAUTON no\PermitRootLogin no' config
+```
+
+### s-替换
+|格式|s###g|s@@@g|s///g|
+|---|---|---|---|
+
+- s，替换
+- g，全局替换，默认只替换每行第一个匹配的内容
+
+```sh
+sed 's#[0-9]##g' test.txt  # 把每一行的数字替换为空
+
+sed 's#[0-9]##' test.txt   # 把每一行的第一个数字替换为空
+```
 
 
 
-# 八、脚本常用监控命令
-# 九、服务管理脚本
+
+# 脚本常用监控命令
+# 服务管理脚本
