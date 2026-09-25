@@ -679,7 +679,7 @@ sed stream editor流编辑器
 - 找谁：找哪一行
 - 干啥：增删改查
 
-![sed](image.png)
+![sed执行过程](./assets/sed.png)
 
 | 查找格式           |                                       |
 | ------------------ | ------------------------------------- |
@@ -772,8 +772,8 @@ sed '$a UseDNS no\GSSAPIAUTON no\PermitRootLogin no' config
 ```
 
 ### s-替换
-|格式|s###g|s@@@g|s///g|
-|---|---|---|---|
+| 格式 | s###g | s@@@g | s///g |
+| ---- | ----- | ----- | ----- |
 
 - s，替换
 - g，全局替换，默认只替换每行第一个匹配的内容
@@ -783,6 +783,362 @@ sed 's#[0-9]##g' test.txt  # 把每一行的数字替换为空
 
 sed 's#[0-9]##' test.txt   # 把每一行的第一个数字替换为空
 ```
+- 后向引用，反向引用
+- 先保护，再使用
+```sh
+wasd@Dell:~$ echo '123456'
+123456
+wasd@Dell:~$ echo '123456' |sed -r 's#(.*)#<\1>#g'
+<123456>                           # 先保护再使用
+```
+
+- 案例1：使用后向引用颠倒前后词
+```sh
+wasd@Dell:~$ echo 'oldboy_lidao'
+oldboy_lidao
+wasd@Dell:~$ echo 'oldboy_lidao' |sed -r 's#(^.*)_(.*$)#\1_\2#g'
+oldboy_lidao
+wasd@Dell:~$ echo 'oldboy_lidao' |sed -r 's#(^.*)_(.*$)#\2_\1#g'
+lidao_oldboy
+```
+- 案例2：ip a取出网卡的ip地址
+```sh
+wasd@Dell:~$ ip a s wlp0s20f3
+3: wlp0s20f3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether c4:75:ab:85:e0:3a brd ff:ff:ff:ff:ff:ff
+    altname wlxc475ab85e03a
+    inet 192.168.31.138/24 brd 192.168.31.255 scope global dynamic noprefixroute wlp0s20f3
+       valid_lft 42490sec preferred_lft 42490sec
+    inet6 fe80::13ce:8287:bf28:371f/64 scope link noprefixroute 
+       valid_lft forever preferred_lft forever
+wasd@Dell:~$ ip a s wlp0s20f3 |sed -n '4p'
+    inet 192.168.31.138/24 brd 192.168.31.255 scope global dynamic noprefixroute wlp0s20f3
+wasd@Dell:~$ ip a s wlp0s20f3 |sed -n '4p' |sed -r 's#(^.*t )(.*)(/.*$)#\1#g'
+    inet 
+wasd@Dell:~$ ip a s wlp0s20f3 |sed -n '4p' |sed -r 's#(^.*t )(.*)(/.*$)#\2#g'
+192.168.31.138
+wasd@Dell:~$ ip a s wlp0s20f3 |sed -n '4p' |sed -r 's#(^.*t )(.*)(/.*$)#\3#g'
+/24 brd 192.168.31.255 scope global dynamic noprefixroute wlp0s20f3
+
+wasd@Dell:~$ ip a s wlp0s20f3 |sed -n '4p' |sed -r 's#^.*t (.*)/.*$#\1#g'
+192.168.31.138
+
+# 精简形式
+wasd@Dell:~$ ip a s wlp0s20f3 |sed -rn '4s#^.*t (.*)/.*$#\1#gp'
+192.168.31.138
+```
+- 案例3：stat /etc/hosts取出权限
+```sh
+wasd@Dell:~$ stat /etc/hosts
+  File: /etc/hosts
+  size: 219             Blocks: 8          IO Block: 4096   regular file
+Device: 259,7   Inode: 5243286     Links: 1
+Access: (0666/-rw-rw-rw-)  Uid: (    0/    root)   Gid: (    0/    root)
+Access: 2026-09-24 22:01:19.649322519 +0800
+Modify: 2026-09-24 22:01:19.648024565 +0800
+Change: 2026-09-24 22:01:19.648024565 +0800
+ Birth: 2026-06-18 11:03:53.857575367 +0800
+wasd@Dell:~$ stat /etc/hosts |sed -n '4p'
+Access: (0666/-rw-rw-rw-)  Uid: (    0/    root)   Gid: (    0/    root)
+wasd@Dell:~$ stat /etc/hosts |sed -n '4p' |sed -r 's#(^.*\(0)(.*)(/-.*$)#\1#g'
+Access: (0
+wasd@Dell:~$ stat /etc/hosts |sed -n '4p' |sed -r 's#(^.*\(0)(.*)(/-.*$)#\3#g'
+/-rw-rw-rw-)  Uid: (    0/    root)   Gid: (    0/    root)
+
+wasd@Dell:~$ stat /etc/hosts |sed -n '4p' |sed -r 's#^.*\(0(.*)/-.*$#\1#g'
+666
+
+wasd@Dell:~$ stat /etc/hosts |sed -rn '4s#^.*\(0(.*)/-.*$#\1#gp'
+666
+
+# 命令本身也支持这个功能
+wasd@Dell:~$ stat -c%a /etc/hosts
+666
+wasd@
+```
+
+## awk
+### 特点及场景
+- 类似于C语言
+- 过滤，统计，计算
+- 过滤，统计日志
+- 选项：-F -v
+
+### 执行过程
+```sh
+awk -F, 'BEGIN{print "name"}{print $2}END{print "end of file"}' test.txt
+# 找谁{干啥}
+# 条件{动作}
+```
+
+![awk执行过程](./assets/awk.png)
+
+### 行与列
+| 名词  |   awk中叫法   |         说明         |
+| :---: | :-----------: | :------------------: |
+|  行   |  记录record   | 每一行默认以回车分隔 |
+|  列   | 字段，域field | 每一列默认以空格分隔 |
+awk中的行和列的结束标记都可以修改
+
+### 取行
+|      awk       |                 |
+| :------------: | :-------------: |
+|     NR==1      |   取出某一行    |
+| NR>=1 && NR<=5 |   取出1到5行    |
+|    /oldboy/    |                 |
+|     //,//      |                 |
+|      符号      | > < >= <= == != |
+```sh
+awk 'NR==1' test.txt  # 取第一行
+
+awk 'NR>=1 && <=5' test.txt  # 取1到5行
+
+awk '/103/,/105/' test.txt  # 取开头是103的行到105的行
+```
+
+### 取列
+```awk '{print $5}'```
+- -F，指定分隔符，指定每一列结束标记（默认是空格，连续的空格，tab键）
+- $数字，取出某一列
+- $0，整行内容
+- $NF，最后一列
+
+```sh
+ls -l |awk '{print $5,$9}' |column -t  #取出第5和第9列，并对齐
+
+wasd@Dell:~$ head -5 /etc/passwd  # 先查看目标文件的前5行，确定格式
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+
+wasd@Dell:~$ awk -F: '{print$1,$NF}' /etc/passwd  # 取出目标文件的第1列和最后一列
+root /bin/bash
+daemon /usr/sbin/nologin
+bin /usr/sbin/nologin
+sys /usr/sbin/nologin
+sync /bin/sync
+games /usr/sbin/nologin
+man /usr/sbin/nologin
+lp /usr/sbin/nologin
+mail /usr/sbin/nologin
+news /usr/sbin/nologin
+uucp /usr/sbin/nologin
+proxy /usr/sbin/nologin
+www-data /usr/sbin/nologin
+backup /usr/sbin/nologin
+list /usr/sbin/nologin
+irc /usr/sbin/nologin
+_apt /usr/sbin/nologin
+nobody /usr/sbin/nologin
+systemd-network /usr/sbin/nologin
+dhcpcd /bin/false
+messagebus /usr/sbin/nologin
+syslog /usr/sbin/nologin
+systemd-resolve /usr/sbin/nologin
+_chrony /usr/sbin/nologin
+tss /usr/sbin/nologin
+uuidd /usr/sbin/nologin
+systemd-oom /usr/sbin/nologin
+whoopsie /bin/false
+dnsmasq /usr/sbin/nologin
+avahi /usr/sbin/nologin
+nm-openvpn /usr/sbin/nologin
+tcpdump /usr/sbin/nologin
+sssd /usr/sbin/nologin
+speech-dispatcher /bin/false
+usbmux /usr/sbin/nologin
+cups-pk-helper /usr/sbin/nologin
+fwupd-refresh /usr/sbin/nologin
+saned /usr/sbin/nologin
+geoclue /usr/sbin/nologin
+cups-browsed /usr/sbin/nologin
+pipewire /usr/sbin/nologin
+hplip /bin/false
+gnome-remote-desktop /usr/sbin/nologin
+polkitd /usr/sbin/nologin
+rtkit /usr/sbin/nologin
+colord /usr/sbin/nologin
+gdm /bin/false
+wasd /bin/bash
+nvidia-persistenced /usr/sbin/nologin
+
+wasd@Dell:~$ awk -F: '{print $1,$NF}' /etc/passwd |column -t  # 取出目标文件的第1列和最后一列，并对齐
+root                  /bin/bash
+daemon                /usr/sbin/nologin
+bin                   /usr/sbin/nologin
+sys                   /usr/sbin/nologin
+sync                  /bin/sync
+games                 /usr/sbin/nologin
+man                   /usr/sbin/nologin
+lp                    /usr/sbin/nologin
+mail                  /usr/sbin/nologin
+news                  /usr/sbin/nologin
+uucp                  /usr/sbin/nologin
+proxy                 /usr/sbin/nologin
+www-data              /usr/sbin/nologin
+backup                /usr/sbin/nologin
+list                  /usr/sbin/nologin
+irc                   /usr/sbin/nologin
+_apt                  /usr/sbin/nologin
+nobody                /usr/sbin/nologin
+systemd-network       /usr/sbin/nologinwasd@Dell:~$ ip a s wlp0s20f3 |awk 'NR==4'
+    inet 192.168.31.138/24 brd 192.168.31.255 scope global dynamic noprefixroute wlp0s20f3
+wasd@Dell:~$ ip a s wlp0s20f3 |awk 'NR==4' |awk -F"[ /]+" '{print $3}'
+192.168.31.138
+dhcpcd                /bin/false
+messagebus            /usr/sbin/nologin
+syslog                /usr/sbin/nologin
+systemd-resolve       /usr/sbin/nologin
+_chrony               /usr/sbin/nologin
+tss                   /usr/sbin/nologin
+uuidd                 /usr/sbin/nologin
+systemd-oom           /usr/sbin/nologin
+whoopsie              /bin/false
+dnsmasq               /usr/sbin/nologin
+avahi                 /usr/sbin/nologin
+nm-openvpn            /usr/sbin/nologin
+tcpdump               /usr/sbin/nologin
+sssd                  /usr/sbin/nologin
+speech-dispatcher     /bin/false
+usbmux                /usr/sbin/nologin
+cups-pk-helper        /usr/sbin/nologin
+fwupd-refresh         /usr/sbin/nologin
+saned                 /usr/sbin/nologin
+geoclue               /usr/sbin/nologin
+cups-browsed          /usr/sbin/nologin
+pipewire              /usr/sbin/nologin
+hplip                 /bin/false
+gnome-remote-desktop  /usr/sbin/nologin
+polkitd               /usr/sbin/nologin
+rtkit                 /usr/sbin/nologin
+colord                /usr/sbin/nologin
+gdm                   /bin/false
+wasd                  /bin/bash
+nvidia-persistenced   /usr/sbin/nologin
+
+wasd@Dell:~$ awk -F: '{print $1“@@”$NF}' /etc/passwd  # 取出目标文件的第1列和最后一列，并以@@隔开
+
+wasd@Dell:~$ awk -F: -vOFS=: '{print$1,$NF}' /etc/passwd  # 取出目标文件的第1列和最后一列，以:分隔（-vOFS=:）
+```
+- 案例：取出网卡的ip地址
+```sh
+wasd@Dell:~$ ip a s wlp0s20f3 |awk 'NR==4'
+    inet 192.168.31.138/24 brd 192.168.31.255 scope global dynamic noprefixroute wlp0s20f3
+wasd@Dell:~$ ip a s wlp0s20f3 |awk 'NR==4' |awk -F"[ /]+" '{print $3}'
+192.168.31.138
+
+wasd@Dell:~$ ip a s wlp0s20f3 |awk -F"[ /]+" 'NR==4{print $3}'
+192.168.31.138
+```
+
+### 内置变量
+| 内置变量 |                                                                 |
+| :------: | :-------------------------------------------------------------: |
+|    NR    |                          记录号，行号                           |
+|    NF    |                      每行有多个字段（列）                       |
+|    FS    |          -F:相当于-v FS=:字段分隔符，每个字段结束标记           |
+|   OFS    | 输出字段分隔符(awk显示每一列时，每一列通过什么分隔，默认是空格) |
+
+### 模式匹配
+|  awk  | -F"[ /]+" | 'NR==4{print $3}' |
+| :---: | :-------: | :---------------: |
+| 命令  |   选项    |   '条件{动作}'    |
+
+可作为条件的
+- 比较符号：> < >= <= == !=
+- 正则
+  - //扩展正则
+  - awk可以精确到某一列，某一列中包含/不包含...内容
+  - ~包含
+  - !~不包含
+- 范围表达式
+- 特殊条件：BEGIN和END
+
+| 符号  |     正则      |          awk正则          |
+| :---: | :-----------: | :-----------------------: |
+|   ^   | 以...开头的行 | 某一列的开头 $3~/^oldboy/ |
+|   $   | 以...结尾的行 | 某一列的结尾 $4~/lidao$/  |
+|  ^$   |     空行      |       某一列是空的        |
+```sh
+# 找出第3列以2开头的行，输出第1、3行和最后一行
+awk -F: '$3~/^2/{print $1,$3,$NF}' /etc/passwd
+
+# 显示指定时间范围内的ip地址
+awk '/11:00:00/,/11:00:30/{print $1}' access.log
+```
+
+### 特殊模式
+|  模式   |                含义                 |                                           场景                                           |
+| :-----: | :---------------------------------: | :--------------------------------------------------------------------------------------: |
+| BEGIN{} | 里面的内容在awk**读取文件之前**执行 |                             简单的统计，计算，不涉及读取文件                             |
+|  END{}  | 里面的内容在awk**读取文件之后**执行 | awk进行统计，一般过程：先进行计算，最后END里面输出结果<br >awk使用数组，用来输出数组结果 |
+
+|     统计方法      |   简写    |    应用场景    |
+| :---------------: | :-------: | :------------: |
+|       i=i+1       |    i++    | 计数，统计次数 |
+|     sum=sum+?     |  sum+=?   |   求和，累加   |
+| array[]=array[]+1 | array[]++ |  数组分类计数  |
+```sh
+awk '/^$/{i++}END{print i}' test.txt  # 统计空行的个数，通过累加统计，最后输出i
+
+seq 100 |awk '{sum=sum+$1}END{print sum}'  # 从1到100累加
+seq 100 |awk '{sum=sum+$1;print sum}END{print sum}'  # 从1到100累加并显示每一次加完后的sum
+```
+
+### awk数组
+- 统计日志
+- 统计次数：统计每个ip出现的次数，统计每种状态码出现次数，统计系统中每个用户被攻击的次数，统计攻击者ip出现的次数
+- 统计求和：统计每个ip消耗的流量
+
+|              | shell数组                                         | awk数组                              |
+| :----------: | :------------------------------------------------ | :----------------------------------- |
+|     形式     | array[0]=oldboy array[1]=lidao                    | array[0]=oldboy array[1]=lidao       |
+|     使用     | echo ${array[0]} ${array[1]}                      | print array[0] array[1]              |
+| 批量输出内容 | for i in ${array[*]}<br>do<br>echo $i<br>done<br> | for (i in array)<br>print i,array[i] |
+
+- awk数组专用循环，变量获取到的是数组下标，如果要数组内容 a[]
+```awk
+wasd@Dell:~$ awk 'BEGIN{a[0]=12306;a[1]="lidao";a[2]="oldboy";for(i in a) print i,a[i]}'
+2 oldboy
+1 lidao
+0 12306
+```
+
+### for循环
+```sh
+awk 'BEGIN{
+for (i=1;i<=100;i++)
+    sum+=i
+print sum
+}'
+```
+
+### if判断
+```sh
+awk 'BEGIN{  # 单分支
+if (条件)
+    print "yes"
+}'
+
+awk 'BEGIN{  # 双分支
+if (条件)
+    print "yes"
+else
+    print "no"
+}'
+```
+- 案例：统计语句中字符数少于6个的单词
+```sh
+wasd@Dell:~$ echo oldboy lidao|awk '{print length($2)}'  # 通过length函数判断字符长度
+5
+
+# for嵌套if判断字符数
+wasd@Dell:~$ echo oldboy lidao|awk -F"[ .]" '{for(i=1;i<=NF;i++) if(length($i)==5) print $i}'
+lidao
+```
+
 
 
 
