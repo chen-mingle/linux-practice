@@ -8,7 +8,7 @@ Shell相关命令
 文件名.sh，.sh是bash shell的默认后缀
 
 ## 使用流程
-- 创建```.sh文件     touch/vim```
+- 创建.sh文件```touch/vim```
 - 编写shell代码
 - 执行shell脚本   脚本必须要有执行权限
 
@@ -112,7 +112,7 @@ offset，数字，表示从第几个字母或符号开始，从0开始
 #### ${parameter%word}
 从变量$parameter的结尾删除最短匹配word的子串
 
-#### ${parameterword}
+#### ${parameter%%word}
 从变量$parameter的结尾删除最长匹配word的子串
 
 #### ${parameter/pattern/string}
@@ -261,7 +261,7 @@ a=10，b=20
 非运算，表达式为true则返回false，否则返回true
 ```[ !false ]``` ```true```
 
-### o
+### -o
 或运算，有一个表达式为true则返回true
 ```[ $a -lt 20 -o $b -gt 100 ]``` ```true```
 
@@ -371,7 +371,7 @@ fi
 ```
 
 ```bash
-if \[ condition ]; then command; fi
+if [ condition ]; then command; fi
 ```
 一般在命令行中执行时使用
 
@@ -463,7 +463,7 @@ wasd@Dell:~$ dirname /home/wasd/Documents/linux-practice/shell-test/test2.sh
 ```
 
 ## 自定义函数
-```bash
+```sh
 [ function ] funname[()]  # 声明函数
 {
   Action;
@@ -587,9 +587,9 @@ Li Hua
 
 ### [] [abc]
 - 一次匹配一个字符，匹配任何一个字符（a或b或c）
-- grep '[abc]' test.txt
-- grep -o '[abc]' test.txt，显示grep的匹配过程
-- grep -i '[a-z0-9]' test.txt，匹配字母和数字，-i不区分大小写
+- ```grep '[abc]' test.txt```
+- ```grep -o '[abc]' test.txt```，显示grep的匹配过程
+- ```grep -i '[a-z0-9]' test.txt```，匹配字母和数字，-i不区分大小写
 - [a-z]，匹配所有小写字母
 - [A-Z]，匹配所有大写字母
 - [a-Z]，匹配所有字母
@@ -612,14 +612,14 @@ Li Hua
 ### ()
 - 被括起来的内容，表示一个整体（一个字符）
 - 后向应用（反向引用sed）
-- egrep 'oldb(o|e)y' test.txt
-- egrep 'oldb[oe]y' test.txt
+- ```egrep 'oldb(o|e)y' test.txt```
+- ```egrep 'oldb[oe]y' test.txt```
 
 ### {}
 - ```o{n,m}```字母o，至少连续出现了n次，至多连续出现了m次
 - ```o{n}```字母o正好连续出现了n次
-- o{n,}，字母o，至少连续出现了n次
-- o{,m}，字母o，至多连续出现了m次
+- ```o{n,}```，字母o，至少连续出现了n次
+- ```o{,m}```，字母o，至多连续出现了m次
 - ```egrep '[0-9]{18}' test.txt```筛选18位数字的行
 
 ### ?
@@ -636,23 +636,23 @@ grep,sed,awk
 | awk  | 取列，统计计算         | 取列,对比,比较,统计,计算              |
 
 ## grep
-| 选项 | 含义                                              |
-| ---- | ------------------------------------------------- |
-| -E   | 相当于egrep，支持扩展正则                         |
-| -A   | 了解，after -A5匹配你要的内容并且显示接下来的5行  |
-| -B   | 了解，before -B5匹配你要的内容并且显示接上面的5行 |
-| -C   | 了解，context -C5匹配你要的内容并且显示上下的5行  |
-| -c   | 统计出现了多少行，类似于wc -l                     |
-| -v   | 取反，排除（行）                                  |
-| -n   | 显示行号                                          |
-| -i   | 忽略大小写                                        |
-| -w   | 精确匹配                                          |
+| 选项 | 含义                                                |
+| ---- | --------------------------------------------------- |
+| -E   | 相当于egrep，支持扩展正则                           |
+| -A   | 了解，after `-A5`匹配你要的内容并且显示接下来的5行  |
+| -B   | 了解，before `-B5`匹配你要的内容并且显示接上面的5行 |
+| -C   | 了解，context `-C5`匹配你要的内容并且显示上下的5行  |
+| -c   | 统计出现了多少行，类似于`wc -l `                    |
+| -v   | 取反，排除（行）                                    |
+| -n   | 显示行号                                            |
+| -i   | 忽略大小写                                          |
+| -w   | 精确匹配                                            |
 
 
 ### 注意
 - ```ps -ef |grep crond|grep -v grep```在过滤时排除自己
 - ```ps -ef|grep '[c]rond'```在过滤时排除自己
-- \b，表示边界```grep \bolgboy\b```和-w作用一致
+- \b，表示边界```grep \bolgboy\b```和`-w`作用一致
 - \\< \\>，```grep \<olgboy\>```同上
 
 ## sed
@@ -983,10 +983,7 @@ list                  /usr/sbin/nologin
 irc                   /usr/sbin/nologin
 _apt                  /usr/sbin/nologin
 nobody                /usr/sbin/nologin
-systemd-network       /usr/sbin/nologinwasd@Dell:~$ ip a s wlp0s20f3 |awk 'NR==4'
-    inet 192.168.31.138/24 brd 192.168.31.255 scope global dynamic noprefixroute wlp0s20f3
-wasd@Dell:~$ ip a s wlp0s20f3 |awk 'NR==4' |awk -F"[ /]+" '{print $3}'
-192.168.31.138
+systemd-network       /usr/sbin/nologin
 dhcpcd                /bin/false
 messagebus            /usr/sbin/nologin
 syslog                /usr/sbin/nologin
@@ -1042,6 +1039,7 @@ wasd@Dell:~$ ip a s wlp0s20f3 |awk -F"[ /]+" 'NR==4{print $3}'
 |   OFS    | 输出字段分隔符(awk显示每一列时，每一列通过什么分隔，默认是空格) |
 
 ### 模式匹配
+```awk -F"[ /]+" 'NR==4{print $3}'```
 |  awk  | -F"[ /]+" | 'NR==4{print $3}' |
 | :---: | :-------: | :---------------: |
 | 命令  |   选项    |   '条件{动作}'    |
@@ -1139,9 +1137,66 @@ wasd@Dell:~$ echo oldboy lidao|awk -F"[ .]" '{for(i=1;i<=NF;i++) if(length($i)==
 lidao
 ```
 
-
-
-
-
 # 脚本常用监控命令
-# 服务管理脚本
+## 磁盘
+### df -h
+- 查看分区使用率、挂载点
+- 过滤临时文件系统：```df -h |grep -v tmpfs |grep -v loop```
+- 提取列（分区、使用率）：```df -h |grep -v tempfs |awk 'NR>1{print $1,$5}'```
+
+### du -sh *
+- 看目录/文件大小，排查哪个目录占盘
+- ```du -sh /var/log```
+
+## 内存&交换分区
+### free
+- -m，单位MB
+- -h，人类可读，看展示
+- awk取可用率：```free -m |awk 'NR==2{total=$2; used=$3; printf "%.0f", used/total*100}'```
+
+## CPU、系统负载
+### uptime
+- 输出：1min 5min 15min平均负载
+- 取1分钟负载：```uptime |awk '{print $(NF-2)}'```
+
+### top
+- 交互式看实时CPU、进程
+
+### mpstat -P ALL 1 1
+- 看每个核心CPU使用率，需安装sysstat包
+
+## 端口、监听服务
+### ss -tln
+- TCP监听端口
+- t，TCP
+- l，listening
+- n，数字不解析域名
+- 检查22端口是否监听：```ss -tln |grep :22```
+
+## 进程
+### ps
+- ```ps aux```全量进程，筛选进程```ps aux |grep [n]ginx```
+- ```ps -ef```看父子进程PID
+
+## IO磁盘读写
+- ```iostat -x 1 1```看%util磁盘繁忙度，r/w读写
+
+## 网络流量
+- ```sar -n DEV 1 1```看网卡收发包速率
+
+## 系统基础信息
+- 内核版本```uname -r```
+- 主机名```hostname```
+- 开机时间```uptime```
+- 系统版本```cat /etc/os-release```
+
+## 日志查看
+- ```dmesg```内核报错，硬件异常
+- ```journalctl -p err```系统错误日志
+
+## 巡检技巧
+- 去掉百分号```gsub(/%/,"",var)```
+- 跳过表头```NR>1```
+- 只取数字，方便if数值比较
+- 脚本尽量不用交互式命令top、htop
+
